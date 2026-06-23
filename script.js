@@ -18,105 +18,91 @@ const HIT_X_MARGIN = 0.3;
 let PROBLEMS = [];
 
 function generateRandomProblems() {
-  const angles = [30, 45, 60];
-  const tHits = [2, 3, 4];
-  const v0_factors = [1, 1.5, 2, 2.5]; // 9.8の倍数
+  const configs30 = [
+    { tHit: 2, xCoef: 19.6, v0Text: "19.6" },
+    { tHit: 3, xCoef: 44.1, v0Text: "29.4" },
+    { tHit: 4, xCoef: 78.4, v0Text: "39.2" }
+  ];
+  const configs45 = [
+    { tHit: 2, xVal: 19.6, v0Text: "13.86 (または厳密値 9.8√2)" },
+    { tHit: 4, xVal: 78.4, v0Text: "27.72 (または厳密値 19.6√2)" }
+  ];
+  const configs60 = [
+    { tHit: 3, xCoef: 14.7, v0Text: "16.97 (または厳密値 9.8√3)" },
+    { tHit: 6, xCoef: 58.8, v0Text: "33.95 (または厳密値 19.6√3)" }
+  ];
+  
+  const selected = [
+    { thetaDeg: 30, conf: configs30[Math.floor(Math.random() * configs30.length)] },
+    { thetaDeg: 45, conf: configs45[Math.floor(Math.random() * configs45.length)] },
+    { thetaDeg: 60, conf: configs60[Math.floor(Math.random() * configs60.length)] }
+  ];
+  selected.sort(() => Math.random() - 0.5);
 
   const newProblems = [];
   
-  for (let i = 1; i <= 3; i++) {
-    const thetaDeg = angles[Math.floor(Math.random() * angles.length)];
-    const tHit = tHits[Math.floor(Math.random() * tHits.length)];
-    const base_v0 = 9.8 * v0_factors[Math.floor(Math.random() * v0_factors.length)];
+  for (let i = 0; i < 3; i++) {
+    const item = selected[i];
+    const thetaDeg = item.thetaDeg;
+    const tHit = item.conf.tHit;
     
     let xTargetStr = '';
     let xTargetVal = 0;
-    let correctV0Text = '';
+    let correctV0Text = item.conf.v0Text;
     let chips = [];
     let text = '';
     
     if (thetaDeg === 30) {
-      const xCoef = base_v0 * tHit / 2;
-      xTargetStr = Number.isInteger(xCoef) ? xCoef + '√3' : xCoef.toFixed(1) + '√3';
-      xTargetVal = xCoef * Math.sqrt(3);
-      correctV0Text = Number.isInteger(base_v0) ? base_v0.toString() : base_v0.toFixed(1);
-      
+      xTargetStr = item.conf.xCoef + '√3';
+      xTargetVal = item.conf.xCoef * Math.sqrt(3);
       chips = [
         { text: "√3 ≈ 1.7321" },
         { text: "cos 30° = √3/2 ≈ 0.8660" },
         { text: "sin 30° = 0.5" },
         { text: "g = 9.8 m/s²" }
       ];
-      
       text = `餌入りのボールとターゲットは <strong>${xTargetStr} m</strong> 離れている。<br>ボールを水平面から仰角 <strong>30°</strong> で投げ出し、<strong>${tHit} 秒後</strong>にターゲットに当てたい。<br>どのくらいの速度で投げ出せばよいか。<br><small>（空気抵抗は無視、重力加速度 g = 9.8 m/s²）</small>`;
       
     } else if (thetaDeg === 45) {
-      const xVal = base_v0 * tHit;
-      xTargetStr = Number.isInteger(xVal) ? xVal.toString() : xVal.toFixed(1);
-      xTargetVal = xVal;
-      
-      const v0Approx = (base_v0 * Math.sqrt(2)).toFixed(2);
-      const v0Exact = Number.isInteger(base_v0) ? base_v0 + '√2' : base_v0.toFixed(1) + '√2';
-      correctV0Text = `${v0Approx} (または厳密値 ${v0Exact})`;
-      
+      xTargetStr = item.conf.xVal.toString();
+      xTargetVal = item.conf.xVal;
       chips = [
         { text: "√2 ≈ 1.4142" },
         { text: "cos 45° = √2/2 ≈ 0.7071" },
         { text: "sin 45° = √2/2 ≈ 0.7071" },
         { text: "g = 9.8 m/s²" }
       ];
-      
       text = `ボールとターゲットの間には <strong>${xTargetStr} m</strong> の距離がある。<br>ボールを水平面から仰角 <strong>45°</strong> で投げ出し、<strong>${tHit} 秒後</strong>にターゲットに当てたい。<br>どのくらいの速度で投げ出せばよいか。<br><small>（空気抵抗は無視、重力加速度 g = 9.8 m/s²）</small>`;
       
     } else if (thetaDeg === 60) {
-      const xCoef = base_v0 * tHit / 2;
-      xTargetStr = Number.isInteger(xCoef) ? xCoef + '√3' : xCoef.toFixed(1) + '√3';
-      xTargetVal = xCoef * Math.sqrt(3);
-      
-      const v0Approx = (base_v0 * Math.sqrt(3)).toFixed(2);
-      const v0Exact = Number.isInteger(base_v0) ? base_v0 + '√3' : base_v0.toFixed(1) + '√3';
-      correctV0Text = `${v0Approx} (または厳密値 ${v0Exact})`;
-      
+      xTargetStr = item.conf.xCoef + '√3';
+      xTargetVal = item.conf.xCoef * Math.sqrt(3);
       chips = [
         { text: "√3 ≈ 1.7321" },
         { text: "cos 60° = 0.5" },
         { text: "sin 60° = √3/2 ≈ 0.8660" },
         { text: "g = 9.8 m/s²" }
       ];
-      
       text = `ボールとターゲットは <strong>${xTargetStr} m</strong> 離れている。<br>ボールを水平面から仰角 <strong>60°</strong> で投げ出し、<strong>${tHit} 秒後</strong>にターゲットに当てたい。<br>どのくらいの速度で投げ出せばよいか。<br><small>（空気抵抗は無視、重力加速度 g = 9.8 m/s²）</small>`;
     }
     
     const hint = function(currentV0Str) {
-      let cosValStr = '';
-      if (thetaDeg === 30) cosValStr = '&radic;3 / 2 &asymp; 0.8660';
-      else if (thetaDeg === 45) cosValStr = '&radic;2 / 2 &asymp; 0.7071';
-      else if (thetaDeg === 60) cosValStr = '0.5';
-      
       let xApprox = xTargetVal.toFixed(2);
       let xDisplay = xTargetStr.includes('√') ? `&asymp; ${xApprox}` : `= ${xApprox}`;
-      let cosDivVal = cosValStr.includes('&asymp;') ? cosValStr.split('&asymp;')[1].trim() : cosValStr;
       
       return '<ol>' +
         '<li>水平方向の運動方程式は<br>' +
         '<code>x = v&#8320; &times; cos(' + thetaDeg + '&deg;) &times; t</code><br>' +
         'この問題では <code>x ' + xDisplay + ' m</code>、' +
         '<code>t = ' + tHit + ' s</code> が既知です。</li>' +
-        '<li>上式に数値を代入して <code>v&#8320;</code> を解いてみましょう：<br>' +
-        '<code>' + xApprox + ' = v&#8320; &times; cos(' + thetaDeg + '&deg;) &times; ' + tHit + '</code><br>' +
-        '<code>cos(' + thetaDeg + '&deg;) = ' + cosValStr + '</code></li>' +
-        '<li>整理すると<br>' +
-        '<code>v&#8320; = ' + xApprox + ' &divide; (' + cosDivVal + ' &times; ' + tHit + ') = ?</code><br>' +
-        '計算した値を「初速 v&#8320;」欄に入力して「発射」してみよう！</li>' +
-        '<li>鉛直方向の確認：<code>y = v&#8320;&times;sin(' + thetaDeg + '&deg;)&times;t &minus; &frac12;&times;g&times;t&sup2;</code><br>' +
-        't = ' + tHit + ' s のとき y = 0 になっているか検算してみよう。</li>' +
+        '<li>上式に数値を代入して、初速 <code>v&#8320;</code> を計算してみましょう。</li>' +
         '</ol>' +
         '<p style="margin-top:0.7rem;color:#8b949e;font-size:0.82rem;">' +
         '&#x203B; あなたが入力した値：' + currentV0Str + '</p>';
     };
 
     newProblems.push({
-      num: i,
+      num: i + 1,
       text: text,
       xTargetStr: xTargetStr,
       xTarget: xTargetVal,
@@ -260,6 +246,8 @@ let v0        = 0;
 // ─────────────────────────────────────────────
 const logs = [];
 
+const GAS_URL = ''; // ここに発行されたWebアプリURLを貼り付けます
+
 function addLog(action, inputV0, detail = '') {
   const ts = new Date().toISOString().replace('T', ' ').replace('Z', '');
   const probNum = (action === 'SessionStart' || currentProblemIndex === undefined) ? '-' : PROBLEMS[currentProblemIndex].num;
@@ -267,9 +255,11 @@ function addLog(action, inputV0, detail = '') {
   const logData = { timestamp: ts, username: currentUsername, problem: probNum, action, v0: inputV0, detail };
   logs.push(logData);
 
-  // Send to server
-  fetch('/api/log', {
+  if (!GAS_URL) return;
+
+  fetch(GAS_URL, {
     method: 'POST',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(logData)
   }).catch(err => console.error('Failed to send log:', err));
@@ -630,12 +620,7 @@ document.getElementById('hintBtn').addEventListener('click', function () {
   addLog('Hint', isNaN(currentV0) ? '' : currentV0, '');
 });
 
-// ログダウンロード
-document.getElementById('downloadBtn').addEventListener('click', function () {
-  if (confirm('サーバーに蓄積された全ユーザーのログ（all_logs.csv）をダウンロードしますか？')) {
-    window.location.href = '/api/download_logs';
-  }
-});
+
 
 // ─────────────────────────────────────────────
 // 10. 計算スペース（Scratchpad）ロジック
