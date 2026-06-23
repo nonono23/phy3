@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhyGame – 斜方投射シミュレーション</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== ヘッダー ===== -->
+  <header>
+    <h1>PhyGame <span>斜方投射シミュレーション</span></h1>
+  </header>
+
+  <!-- ===== メインコンテンツ ===== -->
+  <main>
+
+    <!-- 問題文 -->
+    <section class="problem-box" aria-label="問題文">
+      <h2>問題 <span id="problemNum">1</span></h2>
+      <p id="problemText">
+        餌入りのボールとターゲットは <strong>19.6√3 m</strong> 離れている。<br>
+        ボールを水平面から仰角 <strong>30°</strong> で投げ出し、
+        <strong>2 秒後</strong>にターゲットに当てたい。<br>
+        どのくらいの速度で投げ出せばよいか。<br>
+        <small>（空気抵抗は無視、重力加速度 g = 9.8 m/s²）</small>
+      </p>
+    </section>
+
+    <!-- シミュレーション画面 -->
+    <section class="canvas-wrapper" aria-label="シミュレーション画面">
+      <canvas id="simCanvas" width="800" height="360"></canvas>
+      <div id="resultBanner" class="result-banner hidden" aria-live="polite"></div>
+    </section>
+
+    <!-- 操作 UI -->
+    <section class="controls" aria-label="操作パネル">
+
+      <div class="control-row">
+        <label for="v0Input">初速 v₀（m/s）</label>
+        <input type="number" id="v0Input" min="0" max="200" step="0.1"
+               placeholder="例: 22.6" />
+        <span id="attemptsBadge" class="badge">残り挑戦回数: 3回</span>
+      </div>
+
+      <div class="control-row button-row">
+        <button id="fireBtn" class="btn btn-primary">🚀 発射 Fire</button>
+        <button id="resetBtn" class="btn btn-secondary">↩ リセット Reset</button>
+        <button id="hintBtn" class="btn btn-hint">💡 ヒント Hint</button>
+        <button id="downloadBtn" class="btn btn-log">⬇ 全ログダウンロード</button>
+      </div>
+
+      <!-- ヒント表示エリア -->
+      <div id="hintArea" class="hint-area hidden" aria-live="polite">
+        <h3>💡 ヒント</h3>
+        <div id="hintText"></div>
+      </div>
+
+    </section>
+
+    <!-- ===== 計算スペース（Scratchpad） ===== -->
+    <section class="scratchpad" aria-label="計算スペース">
+
+      <div class="scratchpad-header">
+        <h2>🧮 計算スペース <span>Scratchpad</span></h2>
+        <div id="constChips" class="const-chips">
+          <span class="chip">√3 ≈ 1.7321</span>
+          <span class="chip">cos 30° = √3/2 ≈ 0.8660</span>
+          <span class="chip">sin 30° = 0.5</span>
+          <span class="chip">g = 9.8 m/s²</span>
+        </div>
+      </div>
+
+      <!-- 履歴 -->
+      <div id="calcHistory" class="calc-history" aria-live="polite" aria-label="計算履歴"></div>
+
+      <!-- 入力行 -->
+      <div class="calc-input-row">
+        <input type="text" id="calcInput"
+               placeholder="例: 19.6 * 1.7321 / (0.8660 * 2)"
+               autocomplete="off" spellcheck="false" />
+        <button id="calcBtn" class="btn btn-calc">＝ 計算</button>
+        <button id="calcClearBtn" class="btn btn-calc-clear" title="履歴をクリア">🗑</button>
+      </div>
+
+      <p class="calc-note">
+        使える演算子：<code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>( )</code> <code>**</code>（べき乗）<br>
+        使える関数：<code>sqrt()</code> <code>abs()</code> <code>round()</code> <code>floor()</code> <code>ceil()</code>
+      </p>
+
+    </section>
+
+  </main>
+
+  <!-- ===== フッター ===== -->
+  <footer>
+    <p>参考：PhyGame論文（情報処理学会論文誌 教育とコンピュータ Vol.10 No.2, 2024）</p>
+  </footer>
+
+  <!-- ===== スタートオーバーレイ（ユーザー名入力） ===== -->
+  <div id="startOverlay" class="clear-overlay" aria-live="polite">
+    <div class="start-card">
+      <h2>PhyGame へようこそ！</h2>
+      <p>シミュレーションを開始する前に、ユーザーネームを入力してください。</p>
+      <div class="input-group" style="margin: 20px 0;">
+        <input type="text" id="usernameInput" placeholder="例: Student01" autocomplete="off" style="width: 80%; padding: 10px; font-size: 1.1rem; border-radius: 8px; border: 1px solid #ccc;" />
+      </div>
+      <button id="startGameBtn" class="btn btn-primary btn-large">✨ はじめる</button>
+    </div>
+  </div>
+
+  <!-- ===== ゲームクリアオーバーレイ ===== -->
+  <div id="clearOverlay" class="clear-overlay hidden" aria-live="polite">
+    <div class="clear-card">
+      <h2>🏆 GAME CLEAR! 🏆</h2>
+      <p>すべての問題をクリアしました！</p>
+      <div class="stats-box">
+        <div class="stat-item">
+          <span class="stat-label">総発射回数</span>
+          <span id="totalFires" class="stat-val">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">ヒント使用回数</span>
+          <span id="totalHints" class="stat-val">0</span>
+        </div>
+      </div>
+      <button id="restartGameBtn" class="btn btn-primary btn-large">🔄 最初から遊ぶ</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
