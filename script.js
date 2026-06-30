@@ -246,7 +246,7 @@ let v0        = 0;
 // ─────────────────────────────────────────────
 const logs = [];
 
-const GAS_URL = ''; // ここに発行されたWebアプリURLを貼り付けます
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz0a7Y7fHwHlyAEgou24SP6LnxZSbzZJmft8zO5wzj_KjQ3NNeXShUZG7r3PV1dUUw/exec'; // ここに発行されたWebアプリURLを貼り付けます
 
 function addLog(action, inputV0, detail = '') {
   const ts = new Date().toISOString().replace('T', ' ').replace('Z', '');
