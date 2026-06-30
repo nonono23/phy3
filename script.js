@@ -518,7 +518,25 @@ function hideResult() {
   resultBanner.innerHTML   = '';
 }
 
-function showGameClear() {
+function showGameClear(isInterrupted = false) {
+  let correctCount = 0;
+  for (let i = 0; i < PROBLEMS.length; i++) {
+    if (problemStats[i].cleared) {
+      correctCount++;
+    }
+  }
+  
+  const titleEl = document.getElementById('clearTitle');
+  const subtitleEl = document.getElementById('clearSubtitle');
+  if (isInterrupted) {
+    titleEl.textContent = '🏁 リザルト（中断）';
+    subtitleEl.textContent = 'シミュレーションを中断しました。';
+  } else {
+    titleEl.textContent = '🏆 GAME CLEAR! 🏆';
+    subtitleEl.textContent = 'すべての問題をクリアしました！';
+  }
+  
+  document.getElementById('correctCount').textContent = correctCount + ' / ' + PROBLEMS.length + ' 問';
   document.getElementById('totalFires').textContent = totalFires;
   document.getElementById('totalHints').textContent = totalHints;
   document.getElementById('clearOverlay').classList.remove('hidden');
@@ -618,6 +636,16 @@ document.getElementById('hintBtn').addEventListener('click', function () {
   hintText.innerHTML = PROBLEMS[currentProblemIndex].hint(inputStr);
   hintArea.classList.remove('hidden');
   addLog('Hint', isNaN(currentV0) ? '' : currentV0, '');
+});
+
+// 中断
+document.getElementById('interruptBtn').addEventListener('click', function () {
+  if (confirm('現在の問題で中断し、結果を確認しますか？')) {
+    stopAnimation();
+    hideResult();
+    addLog('Interrupt', '', 'Problem=' + PROBLEMS[currentProblemIndex].num);
+    showGameClear(true);
+  }
 });
 
 
