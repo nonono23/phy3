@@ -9,8 +9,9 @@
 <body>
 
   <!-- ===== ヘッダー ===== -->
-  <header>
-    <h1>PhyGame <span>斜方投射シミュレーション</span></h1>
+  <header style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>PhyGame <span>物理シミュレーション</span></h1>
+    <button id="muteBtn" class="btn" style="background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">🔊 音声オン</button>
   </header>
 
   <!-- ===== メインコンテンツ ===== -->
@@ -75,6 +76,7 @@
         <input type="text" id="calcInput"
                placeholder="例: 19.6 * 1.732 / (0.866 * 2)"
                autocomplete="off" spellcheck="false" />
+        <button id="calcSqrtBtn" class="btn btn-calc" style="padding:0 8px; font-weight:bold; margin-right:5px;" title="平方根(ルート)を入力">√</button>
         <button id="calcBtn" class="btn btn-calc">＝ 計算</button>
         <button id="calcClearBtn" class="btn btn-calc-clear" title="履歴をクリア">🗑</button>
       </div>
